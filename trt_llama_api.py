@@ -233,6 +233,8 @@ class TrtLlmAPI(BaseModel):
                 num_kv_heads = config['pretrained_config']['num_key_value_heads']
                 paged_kv_cache = config['build_config']['plugin_config']['paged_kv_cache']
                 num_kv_heads = (num_kv_heads + tp_size - 1) // tp_size
+                max_batch_size = config['build_config']['max_batch_size']
+                max_beam_width = config['build_config']['max_beam_width']
 
                 self._model_config = ModelConfig(num_heads=num_heads,
                                                  num_kv_heads=num_kv_heads,
@@ -241,6 +243,8 @@ class TrtLlmAPI(BaseModel):
                                                  num_layers=num_layers,
                                                  gpt_attention_plugin=use_gpt_attention_plugin,
                                                  paged_kv_cache=paged_kv_cache,
+                                                 max_batch_size=max_batch_size,
+                                                 max_beam_width=max_beam_width,
                                                  remove_input_padding=remove_input_padding)
 
                 assert pp_size == 1, 'Python runtime does not support pipeline parallelism'
