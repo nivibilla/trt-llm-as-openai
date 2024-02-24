@@ -245,6 +245,7 @@ class TrtLlmAPI(BaseModel):
                                                  paged_kv_cache=paged_kv_cache,
                                                  max_batch_size=max_batch_size,
                                                  max_beam_width=max_beam_width,
+                                                 dtype='bfloat16',
                                                  remove_input_padding=remove_input_padding)
 
                 assert pp_size == 1, 'Python runtime does not support pipeline parallelism'
