@@ -219,24 +219,19 @@ class TrtLlmAPI(BaseModel):
                 # config function
                 with open(config_path, 'r') as f:
                     config = json.load(f)
-                use_gpt_attention_plugin = config['plugin_config']['gpt_attention_plugin']
-                remove_input_padding = config['plugin_config']['remove_input_padding']
-                tp_size = config['builder_config']['tensor_parallel']
-                pp_size = config['builder_config']['pipeline_parallel']
+                use_gpt_attention_plugin = config['build_config']['plugin_config']['gpt_attention_plugin']
+                remove_input_padding = config['build_config']['plugin_config']['remove_input_padding']
+                tp_size = config['pretrained_config']['mapping']['tp_size']
+                pp_size = config['pretrained_config']['mapping']['pp_size']
                 world_size = tp_size * pp_size
                 assert world_size == tensorrt_llm.mpi_world_size(), \
                     f'Engine world size ({world_size}) != Runtime world size ({tensorrt_llm.mpi_world_size()})'
-                num_heads = config['builder_config']['num_heads'] // tp_size
-                hidden_size = config['builder_config']['hidden_size'] // tp_size
-                vocab_size = config['builder_config']['vocab_size']
-                num_layers = config['builder_config']['num_layers']
-                num_kv_heads = config['builder_config'].get('num_kv_heads', num_heads)
-                paged_kv_cache = config['plugin_config']['paged_kv_cache']
-                if config['builder_config'].get('multi_query_mode', False):
-                    tensorrt_llm.logger.warning(
-                        "`multi_query_mode` config is deprecated. Please rebuild the engine."
-                    )
-                    num_kv_heads = 1
+                num_heads = config['pretrained_config']['num_attention_heads'] // tp_size
+                hidden_size = config['pretrained_config']['hidden_size'] // tp_size
+                vocab_size = config['pretrained_config']['vocab_size']
+                num_layers = config['pretrained_config']['num_hidden_layers']
+                num_kv_heads = config['pretrained_config']['num_key_value_heads']
+                paged_kv_cache = config['build_config']['plugin_config']['paged_kv_cache']
                 num_kv_heads = (num_kv_heads + tp_size - 1) // tp_size
 
                 self._model_config = ModelConfig(num_heads=num_heads,
